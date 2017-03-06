@@ -3,7 +3,9 @@ const path = require('path');
 const http = require('http');
 const bodyParser = require('body-parser');
 
+const config = require('./config/db');
 const api = require('./server/routes/api');
+const db = require('./server/database/db');
 
 const app = express();
 
@@ -21,8 +23,15 @@ app.get('*', (req, res) => {
 const port = process.env.PORT || '3000';
 app.set('port', port);
 
-const server = http.createServer(app);
+db.connect(config.url, (err) => {
+    if (err) {
+        console.log('Unable to connect to MongoDB');
+        process.exit(1);
+    } else {
+        const server = http.createServer(app);
 
-server.listen(port, () => {
-    console.log(`API running on localhost:${port}`);
+        server.listen(port, () => {
+            console.log(`API running on localhost:${port}`);
+        });
+    }
 });
